@@ -57,7 +57,7 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
     command => "jar -xf $solr_package",
     cwd => "$solr_home_dir",
     creates => "$solr_home_dir/WEB-INF/web.xml",
-    require => [File["$solr_dist_dir"],Package["java-1.6.0-openjdk"]],
+    require => [File["$solr_dist_dir"], Package[$openjdk]],
     path => ["/bin", "/usr/bin", "/usr/sbin"],
   }
 
