@@ -44,6 +44,14 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
     path => ["/bin", "/usr/bin", "/usr/sbin"],
   }
 
+  exec { "mv-solr":
+    command => "mv ${tmp_dir}/${package}.war /usr/share/tomcat6/webapps/solr.war",
+    creates => "/usr/share/tomcat6/webapps/solr.war",
+    cwd => "$tmp_dir",
+    require => Exec["unpack-solr"],
+    path => ["/bin", "/usr/bin", "/usr/sbin"],
+  }
+
   # Ensure solr dist directory exist, with the appropriate privileges and copy contents of tar'd dist directory
   file { $solr_dist_dir:
     ensure => directory,
@@ -52,15 +60,6 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
     recurse => true,
     group   => $::solr::params::tomcatuser,
     owner   => $::solr::params::tomcatuser,
-  }
-
-  # unpack solr dist into home directory
-  exec { "unpack-solr-war":
-    command => "java -jar xf $solr_package",
-    cwd => "$solr_home_dir",
-    creates => "$solr_home_dir/WEB-INF/web.xml",
-    require => [File["$solr_dist_dir"], Package[$::solr::params::openjdk]],
-    path => ["/bin", "/usr/bin", "/usr/sbin"],
   }
 
   # Ensure solr home directory exist, with the appropriate privileges and copy contents of example package to set this up
