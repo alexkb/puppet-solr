@@ -1,11 +1,13 @@
 class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $tomcat_connector_port) {
+  include solr::params
+
   $tmp_dir = "/var/tmp"
   $solr_dist_dir = "${home_dir}/dist"
   $solr_package = "${solr_dist_dir}/${package}.war"
   $solr_home_dir = "${home_dir}"
   $destination = "$tmp_dir/$package.tgz"
 
-  package { $openjdk:
+  package { $::solr::params::openjdk:
     ensure => present,
   }
   package {"tomcat6":
@@ -48,8 +50,8 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
     require => [Package["tomcat6"],Exec["unpack-solr"]],
     source => "${tmp_dir}/${package}/dist/",
     recurse => true,
-    group   => $tomcatuser,
-    owner   => $tomcatuser,
+    group   => $::solr::params::tomcatuser,
+    owner   => $::solr::params::tomcatuser,
   }
 
   # unpack solr dist into home directory
@@ -57,7 +59,7 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
     command => "jar -xf $solr_package",
     cwd => "$solr_home_dir",
     creates => "$solr_home_dir/WEB-INF/web.xml",
-    require => [File["$solr_dist_dir"], Package[$openjdk]],
+    require => [File["$solr_dist_dir"], Package[$::solr::params::openjdk]],
     path => ["/bin", "/usr/bin", "/usr/sbin"],
   }
 
@@ -67,8 +69,8 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
     require => [Package["tomcat6"],Exec["unpack-solr"]],
     source => "${tmp_dir}/$package/example/solr",
     recurse => true,
-    group   => $tomcatuser,
-    owner   => $tomcatuser,
+    group   => $::solr::params::tomcatuser,
+    owner   => $::solr::params::tomcatuser,
   }
 
   file { "/etc/tomcat6/Catalina/localhost/solr.xml":
@@ -76,8 +78,8 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
     content => template("solr/tomcat_solr.xml.erb"),
     require => [Package["tomcat6"],File[$solr_home_dir]],
     notify  => Service['tomcat6'],
-    group   => $tomcatuser,
-    owner   => $tomcatuser,
+    group   => $::solr::params::tomcatuser,
+    owner   => $::solr::params::tomcatuser,
   }
 
   # Tomcat config file
@@ -118,7 +120,7 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
     ensure => present,
     content => template("solr/solr.xml.erb"),
     notify  => Service['tomcat6'],
-    group   => $tomcatuser,
-    owner   => $tomcatuser,
+    group   => $::solr::params::tomcatuser,
+    owner   => $::solr::params::tomcatuser,
   }
 }
