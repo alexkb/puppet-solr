@@ -58,6 +58,11 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
     cwd => "$tmp_dir",
     require => Exec["mv-solr-war"],
     path => ["/bin", "/usr/bin", "/usr/sbin"],
+  }
+
+  file { "/usr/share/tomcat6/webapps/solr":
+    ensure => directory,
+    require => [Exec["mv-solr-app"]],
     recurse => true,
     source => "/usr/share/tomcat6/webapps/solr",
     group   => $::solr::params::tomcatuser,
@@ -74,20 +79,10 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
     owner   => $::solr::params::tomcatuser,
   }
 
-  # Ensure solr home directory exist, with the appropriate privileges and copy contents of example package to set this up
-  file { $solr_home_dir:
-    ensure => directory,
-    require => [Package["tomcat6"],Exec["unpack-solr"]],
-    source => "${tmp_dir}/$package/example/solr",
-    recurse => true,
-    group   => $::solr::params::tomcatuser,
-    owner   => $::solr::params::tomcatuser,
-  }
-
   file { "/etc/tomcat6/Catalina/localhost/solr.xml":
     ensure => present,
     content => template("solr/tomcat_solr.xml.erb"),
-    require => [Package["tomcat6"],File[$solr_home_dir]],
+    require => [Package["tomcat6"],File["/usr/share/tomcat6/webapps/solr"]],
     notify  => Service['tomcat6'],
     group   => $::solr::params::tomcatuser,
     owner   => $::solr::params::tomcatuser,
