@@ -44,12 +44,23 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
     path => ["/bin", "/usr/bin", "/usr/sbin"],
   }
 
-  exec { "mv-solr":
+  exec { "mv-solr-war":
     command => "mv ${tmp_dir}/${package}/dist/${package}.war /usr/share/tomcat6/webapps/solr.war",
     creates => "/usr/share/tomcat6/webapps/solr.war",
     cwd => "$tmp_dir",
     require => Exec["unpack-solr"],
     path => ["/bin", "/usr/bin", "/usr/sbin"],
+  }
+
+  exec { "mv-solr-app":
+    command => "mv ${tmp_dir}/${package}/example/solr /usr/share/tomcat6/webapps/solr",
+    creates => "/usr/share/tomcat6/webapps/solr",
+    cwd => "$tmp_dir",
+    require => Exec["mv-solr-war"],
+    path => ["/bin", "/usr/bin", "/usr/sbin"],
+    recurse => true,
+    group   => $::solr::params::tomcatuser,
+    owner   => $::solr::params::tomcatuser,
   }
 
   # Ensure solr dist directory exist, with the appropriate privileges and copy contents of tar'd dist directory
