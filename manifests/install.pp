@@ -45,7 +45,7 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
   }
 
   exec { "mv-solr":
-    command => "mv ${tmp_dir}/${package}.war /usr/share/tomcat6/webapps/solr.war",
+    command => "mv ${tmp_dir}/${package}/dist/${package}.war /usr/share/tomcat6/webapps/solr.war",
     creates => "/usr/share/tomcat6/webapps/solr.war",
     cwd => "$tmp_dir",
     require => Exec["unpack-solr"],
