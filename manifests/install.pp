@@ -59,6 +59,7 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
     require => Exec["mv-solr-war"],
     path => ["/bin", "/usr/bin", "/usr/sbin"],
     recurse => true,
+    source => "/usr/share/tomcat6/webapps/solr",
     group   => $::solr::params::tomcatuser,
     owner   => $::solr::params::tomcatuser,
   }
