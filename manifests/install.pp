@@ -56,7 +56,7 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
 
   # unpack solr dist into home directory
   exec { "unpack-solr-war":
-    command => "jar -xf $solr_package",
+    command => "java -jar xf $solr_package",
     cwd => "$solr_home_dir",
     creates => "$solr_home_dir/WEB-INF/web.xml",
     require => [File["$solr_dist_dir"], Package[$::solr::params::openjdk]],
@@ -103,7 +103,7 @@ class solr::install ($source_url, $home_dir, $solr_data_dir, $package, $cores, $
   # Fix Tomcat config permissions
   exec { 'fix-tomcat-config-permissions':
     require => [Package["tomcat6"], File['tomcat-config']],
-    command => "chown tomcat6:tomcat6 /etc/tomcat6/server.xml",
+    command => "chown  ${::solr::params::tomcatuser}:${::solr::params::tomcatuser} /etc/tomcat6/server.xml",
     path => ["/bin", "/usr/bin", "/usr/sbin"],
   }
 
